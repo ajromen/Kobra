@@ -1,0 +1,95 @@
+class Segment{
+  constructor(x,y,radius,angle,prev=null,next=null){
+    this.x=x;
+    this.y=y;
+    this.radius=radius;
+    this.angle=angle;
+    this.prev=prev;
+    this.next=next;
+  }
+  display(){
+    circle(this.x,this.y,this.radius)
+  }
+  follow(distance,node_speed){
+    if (this.prev){
+      if(dist(this.x,this.y,this.prev.x,this.prev.y)>distance){
+        let dir=createVector(this.prev.x-this.x,this.prev.y-this.y)
+        this.angle=atan2(dir.y,dir.x)
+        dir.setMag(node_speed)
+        this.x+=dir.x
+        this.y+=dir.y
+      }
+    }
+  }
+}
+
+class Head extends Segment{
+  constructor(x,y,radius,angle){
+    super(x,y,radius,angle)
+  }
+  display(){
+    fill(200,100,24)
+    circle(this.x,this.y,this.radius)
+    noFill()
+  }
+  follow(distance,node_speed){
+    let dir = createVector(cos(this.angle),sin(this.angle));
+    dir.setMag(node_speed);
+    this.x += dir.x;
+    this.y += dir.y;
+  }
+}
+
+class SegmentList{
+  constructor(start_x,start_y,main_radius,start_angle,node_distance,node_speed,number_of_nodes=2){
+    this.number_of_nodes=number_of_nodes;
+    this.main_radius=main_radius;
+    this.node_distance=node_distance;
+    this.node_speed=node_speed;
+    
+    this.head = new Head(start_x,start_y,main_radius,start_angle,null,null);
+    this.tail=this.head;
+    
+    while(number_of_nodes--) this.add_back();
+  }
+  
+  add_back(angle=null){
+    if (angle == null) {
+      angle = this.tail.angle;
+    }
+    let next_loc = this.point_from_angle(this.tail.x, this.tail.y, this.node_distance, angle);
+    let next_node = new Segment(next_loc.x, next_loc.y, this.main_radius, angle, this.tail, null);
+    this.tail.next = next_node;
+    this.tail = next_node;
+  }
+  
+  point_from_angle(x,y,d,angle){
+    let x1=x+d*cos(angle)
+    let y1=y+d*sin(angle)
+    return createVector(x1,y1)
+  }
+
+  change_direction(angle){
+    this.head.angle = angle;
+  }
+
+  turn(direction){
+    this.head.angle+=direction*PI/(SPEED*50)
+  }
+  
+  display(){
+    let curr = this.head;
+    while (curr != null) {
+      curr.display();
+      curr = curr.next;
+    }
+  }
+
+  move(){
+    let curr = this.head;
+    while (curr != null) {
+      curr.follow(this.node_distance,this.node_speed);
+      curr = curr.next;
+    }
+  }
+}
