@@ -1,6 +1,6 @@
 const START_LENGTH=6
 let HEAD_LENGTH=3
-let SPEED=1
+let SPEED=2
 let Segments;
 
 
@@ -15,7 +15,7 @@ function setup() {
   let segment_distance=h/30;
   let node_speed=h/500*SPEED;
   
-  Segments=new SegmentList(h/2,h/2,radius,PI/4,segment_distance,node_speed,5);
+  Segments=new SegmentList(h/2,h/2,radius,PI/4,segment_distance,node_speed,15);
 
   joystick_setup(h);
 

@@ -10,15 +10,23 @@ class Segment{
   display(){
     circle(this.x,this.y,this.radius)
   }
-  follow(distance,node_speed){
-    if (this.prev){
-      if(dist(this.x,this.y,this.prev.x,this.prev.y)>distance){
-        let dir=createVector(this.prev.x-this.x,this.prev.y-this.y)
-        this.angle=atan2(dir.y,dir.x)
-        dir.setMag(node_speed)
-        this.x+=dir.x
-        this.y+=dir.y
+  pull(distance){
+    if(this.next){
+      let wanted_angle = atan2(this.y - this.next.y, this.x - this.next.x);
+      wanted_angle = normalise_angle(wanted_angle);
+      this.angle = normalise_angle(this.angle);
+      let angle_diff = normalise_angle(this.angle - wanted_angle);
+      if(angle_diff > PI/4){
+        wanted_angle = this.angle - PI/4;
       }
+      if(angle_diff < -PI/4){
+        wanted_angle = this.angle + PI/4;
+      }
+      let dir = createVector(cos(wanted_angle), sin(wanted_angle));
+      dir.setMag(distance);
+      this.next.angle = wanted_angle;
+      this.next.x = this.x - dir.x;
+      this.next.y = this.y - dir.y;
     }
   }
 }
@@ -32,7 +40,7 @@ class Head extends Segment{
     circle(this.x,this.y,this.radius)
     noFill()
   }
-  follow(distance,node_speed){
+  follow(node_speed){
     let dir = createVector(cos(this.angle),sin(this.angle));
     dir.setMag(node_speed);
     this.x += dir.x;
@@ -74,7 +82,7 @@ class SegmentList{
   }
 
   turn(direction){
-    this.head.angle+=direction*PI/(SPEED*50)
+    this.head.angle+=direction*PI/50*SPEED
   }
   
   display(){
@@ -87,9 +95,16 @@ class SegmentList{
 
   move(){
     let curr = this.head;
+    curr.follow(this.node_speed)
     while (curr != null) {
-      curr.follow(this.node_distance,this.node_speed);
+      curr.pull(this.node_distance);
       curr = curr.next;
     }
   }
+}
+
+function normalise_angle(angle){
+  while(angle>PI) angle-=2*PI;
+  while(angle<-PI) angle+=2*PI;
+  return angle;
 }
