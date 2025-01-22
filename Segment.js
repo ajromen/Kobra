@@ -78,6 +78,13 @@ class SegmentList{
   }
 
   change_direction(angle){
+    let angle_diff=normalise_angle(this.head.angle-angle);
+    if(angle_diff > PI/50*SPEED){
+      angle = this.head.angle - PI/50*SPEED;
+    }
+    if(angle_diff < -PI/50*SPEED){
+      angle = this.head.angle + PI/50*SPEED;
+    }
     this.head.angle = angle;
   }
 

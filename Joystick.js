@@ -3,6 +3,7 @@ let joystick_size=10;
 let joystick_started=false;
 let dir_x=0, dir_y=0, joystick_angle=0;
 let is_phone=false;
+let joystick_draw=false;
 
 /*draw
 crtajJoystick()
@@ -37,7 +38,10 @@ function touchMoved(){
 }
 
 function touchStarted(){
-    if (is_phone && touches.length > 0) joystick_moved(touches[0].x, touches[0].y);
+    if (is_phone && touches.length > 0) {
+        joystick.set(touches[0].x, touches[0].y);
+        joystick_moved(touches[0].x, touches[0].y);
+    }
 }
 
 function touchEnded(){
@@ -45,7 +49,10 @@ function touchEnded(){
 }
 
 function mousePressed(){
-    if(is_phone) joystick_moved(mouseX, mouseY);
+    if(is_phone) {
+        joystick.set(mouseX, mouseY);
+        joystick_moved(mouseX, mouseY);
+    }
 }
 
 function mouseDragged(){
@@ -57,6 +64,7 @@ function mouseReleased(){
 }
 
 function joystick_moved(){
+    joystick_draw=true;
     if(dist(joystick.x,joystick.y,mouseX,mouseY)<=joystick_size || joystick_started){
         let joystick_angle=atan2(mouseY-joystick.y,mouseX-joystick.x)
         // dir_x=sin(joystick_angle+PI/2)
@@ -75,9 +83,11 @@ function restartMovement(){
     // dir_y=0
     joystick_top.set(0,0)
     joystick_started=false;
+    joystick_draw=false;
 }
 
 function crtajJoystick(){
+    if(!joystick_draw) return;
     fill(100,100)
     ellipse(joystick.x,joystick.y,joystick_size*2,joystick_size*2)
     fill(0,150)
