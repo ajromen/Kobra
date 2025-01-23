@@ -33,7 +33,7 @@ class Segment{
 
 class Head extends Segment{
   constructor(x,y,radius,angle){
-    super(x,y,radius,angle)
+    super(x,y,radius/1.5,angle)
   }
   display(){
     fill(200,100,24)
@@ -92,7 +92,16 @@ class SegmentList{
 
   recalculate_radiuses(){
     this.recalculate_scaling_factor();
+
+    //kobriranje
     let curr = this.head.next;
+    curr.radius= this.main_radius*1.2;
+    curr = curr.next;
+    curr.radius= this.main_radius*1.7;
+    curr=curr.next;
+    curr.radius= this.main_radius*1.2;
+    curr=curr.next;
+
     let index = 0;
     while (curr != null) {
       curr.radius = this.bellcurve_radius(index);

@@ -55,6 +55,7 @@ function draw() {
 }
 
 function draw_game_over() {
+  noStroke();
   push();
   translate(0, -width/10)
   textSize(width / 10);
@@ -62,8 +63,8 @@ function draw_game_over() {
   
   text('Game Over', width / 2, height / 2 - width / 20);
   textSize(width / 40);
-  fill(200);
-  text('Press Space to Restart', width / 2, height / 2 + width / 20);
+  fill(50);
+  text('Press Space or Tap the screen to Restart', width / 2, height / 2 + width / 20);
   text('Press x to change account', width / 2, height / 2 + width / 10);
   
   textSize(width / 30);
@@ -73,6 +74,7 @@ function draw_game_over() {
   text('Global Highscore: ' + globalHighscore, width / 2, height / 2 + width / 3.3);
   
   pop();
+  stroke(255);
 }
 
 function game(){
@@ -111,6 +113,10 @@ function keyReleased() {
 }
 
 function touchStarted() {
+  if (is_game_over) {
+    restart_game();
+    return;
+  }
   if (touches.length == 0) return;
   joystick.set_position(touches[0].x, touches[0].y);
   joystick.moved(touches[0].x, touches[0].y);
@@ -126,7 +132,10 @@ function touchEnded() {
 }
 
 function mousePressed() {
-  
+  if (is_game_over) {
+    restart_game();
+    return;
+  }
   joystick.set_position(mouseX, mouseY);
   joystick.moved(mouseX, mouseY);
 }
