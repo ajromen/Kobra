@@ -18,7 +18,7 @@ function setup() {
   let node_speed=h/500*SPEED;
   
   Segments=new SegmentList(h/2,h/2,radius,PI/4,segment_distance,node_speed,STARTING_NUMBER_OF_NODES);
-
+  Segments.set_direction(-3*PI/4);
   joystick = new Joystick(h, (angle) => Segments.change_direction(angle),true);
   stroke(255)
   noFill()

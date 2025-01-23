@@ -57,7 +57,6 @@ class SegmentList{
     
     this.head = new Head(start_x,start_y,main_radius,start_angle,null,null);
     this.tail=this.head;
-    this.head.angle=-start_angle;
     
     while(number_of_nodes--) this.add_back();
   }
@@ -76,6 +75,9 @@ class SegmentList{
     let x1=x+d*cos(angle)
     let y1=y+d*sin(angle)
     return createVector(x1,y1)
+  }
+  set_direction(angle){
+    this.head.angle = angle;
   }
 
   change_direction(angle){
