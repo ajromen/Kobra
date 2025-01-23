@@ -45,6 +45,8 @@ class Head extends Segment{
     dir.setMag(node_speed);
     this.x += dir.x;
     this.y += dir.y;
+    if(this.x>width||this.x<0||this.y>height||this.y<0)
+      game_over();
   }
 }
 
@@ -69,6 +71,25 @@ class SegmentList{
     let next_node = new Segment(next_loc.x, next_loc.y, this.main_radius, angle, this.tail, null);
     this.tail.next = next_node;
     this.tail = next_node;
+    this.recalculate_radiuses();
+  }
+
+  recalculate_radiuses(){
+    let curr = this.head.next;
+    let index = 1;
+    while (curr != null) {
+      curr.radius = this.bellcurve_radius(index);
+      curr = curr.next;
+      index++;
+    }
+  }
+
+  bellcurve_radius(index){
+    let sigma = this.number_of_nodes / 6; // assuming 99.7% of nodes fall within 3 standard deviations
+    let mean = this.number_of_nodes / 2;
+    let exponent = -0.5 * Math.pow((index - mean) / sigma, 2);
+    let radius = this.main_radius * Math.exp(exponent);
+    return radius;
   }
   
   point_from_angle(x,y,d,angle){
@@ -76,6 +97,7 @@ class SegmentList{
     let y1=y+d*sin(angle)
     return createVector(x1,y1)
   }
+
   set_direction(angle){
     this.head.angle = angle;
   }
@@ -110,6 +132,17 @@ class SegmentList{
       curr.pull(this.node_distance);
       curr = curr.next;
     }
+  }
+
+  check_collision(fruit){
+    fruit.forEach(fruit => {
+      if(dist(this.head.x,this.head.y,fruit.x,fruit.y)<this.main_radius+fruit.radius){
+        fruit.x=random(width);
+        fruit.y=random(height);
+        this.add_back();
+        score++;
+      }
+    });
   }
 }
 
