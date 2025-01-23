@@ -57,6 +57,7 @@ class SegmentList{
     
     this.head = new Head(start_x,start_y,main_radius,start_angle,null,null);
     this.tail=this.head;
+    this.head.angle=-start_angle;
     
     while(number_of_nodes--) this.add_back();
   }

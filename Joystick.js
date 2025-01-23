@@ -1,96 +1,45 @@
-let joystick, joystick_top
-let joystick_size=10;
-let joystick_started=false;
-let dir_x=0, dir_y=0, joystick_angle=0;
-let is_phone=false;
-let joystick_draw=false;
-
-/*draw
-crtajJoystick()
-*/
-
-
-function joystick_setup(h){
-  joystick_size=h/joystick_size;
-  joystick= createVector(joystick_size+joystick_size/2,h-joystick_size-joystick_size/2);
-  joystick_top = createVector(0,0)
-  
-  is_phone=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  is_phone=true;
-}
-
-function keyPressed(){
-    // if (keyCode === 87) { dir_y = 1; }
-    // else if (keyCode === 83) dir_y = -1;
-    if (keyCode === 68) { dir_x = 1 }
-    else if (keyCode === 65) dir_x = -1;
-    //if (keyCode === 16) boost=2
-}
-  
-function keyReleased() {                                      
-    // if (keyCode === 87 || keyCode === 83) dir_y = 0; 
-    if (keyCode === 68 || keyCode === 65) dir_x = 0;
-    //if (keyCode === 16) boost=1;
-}
-
-function touchMoved(){
-    if (is_phone && touches.length > 0) joystick_moved(touches[0].x, touches[0].y);
-}
-
-function touchStarted(){
-    if (is_phone && touches.length > 0) {
-        joystick.set(touches[0].x, touches[0].y);
-        joystick_moved(touches[0].x, touches[0].y);
+class Joystick {
+    constructor(screen_size, change_direction, allow_if_not_phone = false) {
+        this.size = screen_size / 10;
+        this.position = createVector(this.size + this.size / 2, screen_size - this.size - this.size / 2);
+        this.top = createVector(0, 0);
+        this.angle = 0;
+        this.started = false;
+        this.draw = false;
+        this.is_phone = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        this.change_direction = change_direction;
+        if(allow_if_not_phone) this.is_phone = true;
     }
-}
 
-function touchEnded(){
-    restartMovement()
-}
-
-function mousePressed(){
-    if(is_phone) {
-        joystick.set(mouseX, mouseY);
-        joystick_moved(mouseX, mouseY);
+    set_position(x, y) {
+        this.position.set(x, y);
     }
-}
 
-function mouseDragged(){
-    if(is_phone) joystick_moved(mouseX, mouseY);
-}
-
-function mouseReleased(){
-    if(is_phone) restartMovement()
-}
-
-function joystick_moved(){
-    joystick_draw=true;
-    if(dist(joystick.x,joystick.y,mouseX,mouseY)<=joystick_size || joystick_started){
-        let joystick_angle=atan2(mouseY-joystick.y,mouseX-joystick.x)
-        // dir_x=sin(joystick_angle+PI/2)
-        // dir_y=cos(joystick_angle+PI/2)
-        joystick_top=p5.Vector.sub(joystick,createVector(mouseX,mouseY))
-        joystick_started=true;
-        Segments.change_direction(joystick_angle)
+    moved(x, y) {
+        if (!this.is_phone) return;
+        this.draw = true;
+        if (dist(this.position.x, this.position.y, x, y) <= this.size || this.started) {
+            this.angle = atan2(y - this.position.y, x - this.position.x);
+            this.top = p5.Vector.sub(this.position, createVector(x, y));
+            this.started = true;
+            this.change_direction(this.angle);
+        } else {
+            this.restart();
+        }
     }
-    else{
-        restartMovement()
+
+    restart() {
+        this.top.set(0, 0);
+        this.started = false;
+        this.draw = false;
     }
-}
 
-function restartMovement(){
-    // dir_x=0
-    // dir_y=0
-    joystick_top.set(0,0)
-    joystick_started=false;
-    joystick_draw=false;
-}
-
-function crtajJoystick(){
-    if(!joystick_draw) return;
-    fill(100,100)
-    ellipse(joystick.x,joystick.y,joystick_size*2,joystick_size*2)
-    fill(0,150)
-    joystick_top.limit(joystick_size)
-    ellipse(joystick.x - joystick_top.x, joystick.y - joystick_top.y, joystick_size/4*3, joystick_size/4*3);
+    display() {
+        if (!this.draw || !this.is_phone) return;
+        fill(100, 100);
+        ellipse(this.position.x, this.position.y, this.size * 2, this.size * 2);
+        fill(0, 150);
+        this.top.limit(this.size);
+        ellipse(this.position.x - this.top.x, this.position.y - this.top.y, this.size / 4 * 3, this.size / 4 * 3);
+    }
 }
