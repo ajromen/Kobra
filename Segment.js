@@ -53,6 +53,7 @@ class Head extends Segment{
 class SegmentList{
   constructor(start_x,start_y,main_radius,start_angle,node_distance,node_speed,number_of_nodes=2){
     this.number_of_nodes=number_of_nodes;
+    this.recalculate_scaling_factor();
     this.main_radius=main_radius;
     this.node_distance=node_distance;
     this.node_speed=node_speed;
@@ -60,7 +61,16 @@ class SegmentList{
     this.head = new Head(start_x,start_y,main_radius,start_angle,null,null);
     this.tail=this.head;
     
-    while(number_of_nodes--) this.add_back();
+    while(number_of_nodes--) this.add_back_bulk();
+    this.recalculate_radiuses();
+  }
+
+  add_back_bulk(){
+    let angle = this.tail.angle;
+    let next_loc = this.point_from_angle(this.tail.x, this.tail.y, this.node_distance, angle);
+    let next_node = new Segment(next_loc.x, next_loc.y, this.main_radius, angle, this.tail, null);
+    this.tail.next = next_node;
+    this.tail = next_node;
   }
   
   add_back(angle=null){
@@ -71,12 +81,19 @@ class SegmentList{
     let next_node = new Segment(next_loc.x, next_loc.y, this.main_radius, angle, this.tail, null);
     this.tail.next = next_node;
     this.tail = next_node;
+    this.number_of_nodes++;
     this.recalculate_radiuses();
   }
 
+  recalculate_scaling_factor(){
+    let mapiraj=map(this.number_of_nodes, 0, 150, 45, 15)
+    this.scaling_factor = this.number_of_nodes / mapiraj;
+  }
+
   recalculate_radiuses(){
+    this.recalculate_scaling_factor();
     let curr = this.head.next;
-    let index = 1;
+    let index = 0;
     while (curr != null) {
       curr.radius = this.bellcurve_radius(index);
       curr = curr.next;
@@ -85,10 +102,9 @@ class SegmentList{
   }
 
   bellcurve_radius(index){
-    let sigma = this.number_of_nodes / 6; // assuming 99.7% of nodes fall within 3 standard deviations
-    let mean = this.number_of_nodes / 2;
-    let exponent = -0.5 * Math.pow((index - mean) / sigma, 2);
-    let radius = this.main_radius * Math.exp(exponent);
+    let a=this.scaling_factor;
+    let pow=-((index-7*a)**2/(1000*a));
+    let radius=this.main_radius*exp(pow);
     return radius;
   }
   
@@ -114,7 +130,7 @@ class SegmentList{
   }
 
   turn(direction){
-    this.head.angle+=direction*PI/50*SPEED
+    this.head.angle+=direction*PI/70*SPEED
   }
   
   display(){
