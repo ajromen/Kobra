@@ -16,11 +16,11 @@ class Segment{
       wanted_angle = normalise_angle(wanted_angle);
       this.angle = normalise_angle(this.angle);
       let angle_diff = normalise_angle(this.angle - wanted_angle);
-      if(angle_diff > PI/4){
-        wanted_angle = this.angle - PI/4;
+      if(angle_diff > BEND_ANGLE){
+        wanted_angle = this.angle - BEND_ANGLE;
       }
-      if(angle_diff < -PI/4){
-        wanted_angle = this.angle + PI/4;
+      if(angle_diff < -BEND_ANGLE){
+        wanted_angle = this.angle + BEND_ANGLE;
       }
       let dir = createVector(cos(wanted_angle), sin(wanted_angle));
       dir.setMag(distance);
@@ -36,9 +36,7 @@ class Head extends Segment{
     super(x,y,radius/1.5,angle)
   }
   display(){
-    //fill(200,100,24)
     circle(this.x,this.y,this.radius)
-    noFill()
   }
   follow(node_speed){
     let dir = createVector(cos(this.angle),sin(this.angle));
@@ -46,7 +44,7 @@ class Head extends Segment{
     this.x += dir.x;
     this.y += dir.y;
     if(this.x>width||this.x<0||this.y>height||this.y<0)
-      game_over();
+      game_over()
   }
 }
 
@@ -143,6 +141,7 @@ class SegmentList{
   }
   display(){
     fill('orange')
+    
     beginShape()
     let curr = this.head;
 
@@ -163,32 +162,73 @@ class SegmentList{
     endShape(CLOSE)
   }
   
-  display_debug(){
+  display3(){
+    fill('orange')
     beginShape()
     let curr = this.head;
+
+    curveVertex(curr.x+curr.radius*cos(curr.angle)/2.7, curr.y+curr.radius*sin(curr.angle)/2.7,2)
+    curveVertex(curr.x+curr.radius*cos(curr.angle+PI/3)/2, curr.y+curr.radius*sin(curr.angle+PI/3)/2,2)
+    curr=curr.next
+    curveVertex(curr.x+curr.radius*cos(curr.angle+PI/4)/2, curr.y+curr.radius*sin(curr.angle+PI/4)/2,2)
+    let get_back=curr;
+    curr=curr.next
+    while (curr.next != null) {
+      curveVertex(curr.x+curr.radius*cos(curr.angle+PI/2)/2,curr.y+curr.radius*sin(curr.angle+PI/2)/2)
+      //curr.display();
+      curr = curr.next;
+    }
+    curveVertex(this.tail.x+this.tail.radius*cos(this.tail.angle+4*PI/5)/2, this.tail.y+this.tail.radius*sin(this.tail.angle+4*PI/5)/2,2)
+    curveVertex(this.tail.x+this.tail.radius*cos(this.tail.angle+PI), this.tail.y+this.tail.radius*sin(this.tail.angle+PI),2)
+    curveVertex(this.tail.x+this.tail.radius*cos(this.tail.angle-4*PI/5)/2, this.tail.y+this.tail.radius*sin(this.tail.angle-4*PI/5)/2,2)
+    curr=this.tail.prev;
+    while (curr != get_back) {
+      curveVertex(curr.x+curr.radius*cos(curr.angle-PI/2)/2,curr.y+curr.radius*sin(curr.angle-PI/2)/2)
+      //curr.display();
+      curr = curr.prev;
+    }
+    curveVertex(curr.x+curr.radius*cos(curr.angle-PI/4)/2, curr.y+curr.radius*sin(curr.angle-PI/4)/2,2)
+    curr=curr.prev;
+    curveVertex(curr.x+curr.radius*cos(curr.angle-PI/3)/2, curr.y+curr.radius*sin(curr.angle-PI/3)/2,2)
+    endShape(CLOSE)
+  }
+  
+  display_debug(){
+    let curr=this.head;
+    while (curr != null) {
+      curr.display();
+      curr=curr.next;
+    }
+    curr = this.head;
     
-    vertex(curr.x+cos(curr.angle), curr.y+sin(curr.angle))
     stroke('red')
     strokeWeight(5)
     circle(curr.x+curr.radius*cos(curr.angle)/2, curr.y+curr.radius*sin(curr.angle)/2,2)
-    circle(curr.x+curr.radius*cos(curr.angle+PI/2)/2, curr.y+curr.radius*sin(curr.angle+PI/2)/2,2)
-    circle(curr.x+curr.radius*cos(curr.angle-PI/2)/2, curr.y+curr.radius*sin(curr.angle-PI/2)/2,2)
-    text(this.head.angle,150,15)
-    stroke("white")
-    strokeWeight(1)
-    while (curr != null) {
-      curr.display();
-      stroke('red')
-      strokeWeight(5)
+    circle(curr.x+curr.radius*cos(curr.angle+PI/3)/2, curr.y+curr.radius*sin(curr.angle+PI/3)/2,2)
+    circle(curr.x+curr.radius*cos(curr.angle-PI/3)/2, curr.y+curr.radius*sin(curr.angle-PI/3)/2,2)
+    //text(this.head.angle,150,15)
+    curr=curr.next
+    circle(curr.x+curr.radius*cos(curr.angle+PI/4)/2, curr.y+curr.radius*sin(curr.angle+PI/4)/2,2)
+    circle(curr.x+curr.radius*cos(curr.angle-PI/4)/2, curr.y+curr.radius*sin(curr.angle-PI/4)/2,2)
+    
+    curr=curr.next
+    while (curr.next != null) {
+      
       circle(curr.x+curr.radius*cos(curr.angle+PI/2)/2, curr.y+curr.radius*sin(curr.angle+PI/2)/2,2)
       circle(curr.x+curr.radius*cos(curr.angle-PI/2)/2, curr.y+curr.radius*sin(curr.angle-PI/2)/2,2)
       text(this.head.angle,150,15)
-      stroke("white")
-      strokeWeight(1)
+      
       curr = curr.next;
     }
-    endShape()
+    circle(this.tail.x+this.tail.radius*cos(this.tail.angle+4*PI/5)/2, this.tail.y+this.tail.radius*sin(this.tail.angle+4*PI/5)/2,2)
+    circle(this.tail.x+this.tail.radius*cos(this.tail.angle-4*PI/5)/2, this.tail.y+this.tail.radius*sin(this.tail.angle-4*PI/5)/2,2)
+    strokeWeight(1)
+    
+    stroke('white')
+    // text(this.tail.x,width/2,width/2.1)
+    // text(this.tail.prev.x,width/2,width/2)
   }
+  
 
   move(){
     let curr = this.head;
@@ -198,11 +238,12 @@ class SegmentList{
     curr.pull(this.node_distance);
     curr = curr.next;
     curr.pull(this.node_distance);
-    curr = curr.next;
+    curr = curr.next
     while (curr != null) {
       curr.pull(this.node_distance);
       if (dist(this.head.x, this.head.y, curr.x, curr.y) < this.head.radius / 2 + curr.radius / 2) 
-        game_over();
+        game_over()
+      
       curr = curr.next;
     }
   }

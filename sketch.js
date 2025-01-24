@@ -1,7 +1,7 @@
 const START_LENGTH=6
 let HEAD_LENGTH=3
 let STARTING_NUMBER_OF_NODES=5
-let SPEED=3
+let SPEED=2
 let FRUIT_NUMBER=4
 let FRUIT_SIZE=20
 let Segments;
@@ -12,6 +12,7 @@ let score = 0;
 let highscore = 0;
 let globalHighscore = 0;
 let fruit=[];
+let BEND_ANGLE=3.1415/5
 
 function setup() {
   let h = windowWidth > windowHeight ? windowHeight : windowWidth;
