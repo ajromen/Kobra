@@ -36,7 +36,7 @@ class Head extends Segment{
     super(x,y,radius/1.5,angle)
   }
   display(){
-    fill(200,100,24)
+    //fill(200,100,24)
     circle(this.x,this.y,this.radius)
     noFill()
   }
@@ -141,27 +141,76 @@ class SegmentList{
   turn(direction){
     this.head.angle+=direction*PI/70*SPEED
   }
-  
   display(){
+    fill('orange')
+    beginShape()
     let curr = this.head;
+
+    curveVertex(curr.x+curr.radius*cos(curr.angle)/2,curr.y+curr.radius*sin(curr.angle)/2)
+  
     while (curr != null) {
-      curr.display();
+      curveVertex(curr.x+curr.radius*cos(curr.angle+PI/2)/2,curr.y+curr.radius*sin(curr.angle+PI/2)/2)
+      //curr.display();
       curr = curr.next;
     }
+    curveVertex(this.tail.x+this.tail.radius*cos(this.tail.angle+PI)/2,this.tail.y+this.tail.radius*sin(this.tail.angle+PI)/2)
+    curr=this.tail;
+    while (curr != null) {
+      curveVertex(curr.x+curr.radius*cos(curr.angle-PI/2)/2,curr.y+curr.radius*sin(curr.angle-PI/2)/2)
+      //curr.display();
+      curr = curr.prev;
+    }
+    endShape(CLOSE)
+  }
+  
+  display_debug(){
+    beginShape()
+    let curr = this.head;
+    
+    vertex(curr.x+cos(curr.angle), curr.y+sin(curr.angle))
+    stroke('red')
+    strokeWeight(5)
+    circle(curr.x+curr.radius*cos(curr.angle)/2, curr.y+curr.radius*sin(curr.angle)/2,2)
+    circle(curr.x+curr.radius*cos(curr.angle+PI/2)/2, curr.y+curr.radius*sin(curr.angle+PI/2)/2,2)
+    circle(curr.x+curr.radius*cos(curr.angle-PI/2)/2, curr.y+curr.radius*sin(curr.angle-PI/2)/2,2)
+    text(this.head.angle,150,15)
+    stroke("white")
+    strokeWeight(1)
+    while (curr != null) {
+      curr.display();
+      stroke('red')
+      strokeWeight(5)
+      circle(curr.x+curr.radius*cos(curr.angle+PI/2)/2, curr.y+curr.radius*sin(curr.angle+PI/2)/2,2)
+      circle(curr.x+curr.radius*cos(curr.angle-PI/2)/2, curr.y+curr.radius*sin(curr.angle-PI/2)/2,2)
+      text(this.head.angle,150,15)
+      stroke("white")
+      strokeWeight(1)
+      curr = curr.next;
+    }
+    endShape()
   }
 
   move(){
     let curr = this.head;
-    curr.follow(this.node_speed)
+    curr.follow(this.node_speed);
+    curr.pull(this.node_distance);
+    curr = curr.next;
+    curr.pull(this.node_distance);
+    curr = curr.next;
+    curr.pull(this.node_distance);
+    curr = curr.next;
     while (curr != null) {
       curr.pull(this.node_distance);
+      if (dist(this.head.x, this.head.y, curr.x, curr.y) < this.head.radius / 2 + curr.radius / 2) 
+        game_over();
       curr = curr.next;
     }
   }
 
+
   check_collision(fruit){
     fruit.forEach(fruit => {
-      if(dist(this.head.x,this.head.y,fruit.x,fruit.y)<this.main_radius+fruit.radius){
+      if(dist(this.head.x,this.head.y,fruit.x,fruit.y)<this.head.radius/2+fruit.radius){
         fruit.x=random(width);
         fruit.y=random(height);
         this.add_back();

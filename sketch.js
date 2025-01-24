@@ -88,7 +88,7 @@ function game(){
   
   Segments.move();
   Segments.check_collision(fruit);
-  Segments.display();
+  Segments.display_debug();
   joystick.display();
 }
 
